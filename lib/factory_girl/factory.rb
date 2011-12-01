@@ -37,6 +37,7 @@ module FactoryGirl
       block ||= lambda {|result| result }
 
       runner_options = {
+        :factory_class => factory_class,
         :attributes  => attributes,
         :callbacks   => callbacks,
         :to_create   => to_create,
@@ -89,12 +90,22 @@ module FactoryGirl
       parent.defined_traits.each {|trait| define_trait(trait) }
       parent.compile
       @definition.compile
+
+      traits.each do |trait|
+        factory_class.send :include, trait.attributes.to_module
+      end
+
+      factory_class.send :include, @definition.attributes.to_module
     end
 
     def with_traits(traits)
       self.clone.tap do |factory_with_traits|
         factory_with_traits.inherit_traits traits
       end
+    end
+
+    def factory_class
+      @factory_class ||= Class.new(parent.factory_class)
     end
 
     protected
@@ -106,6 +117,7 @@ module FactoryGirl
 
     def attributes
       compile
+
       AttributeList.new(@name).tap do |list|
         traits.each do |trait|
           list.apply_attributes(trait.attributes)
@@ -153,6 +165,7 @@ module FactoryGirl
         @build_class = options[:build_class]
         @proxy_class = options[:proxy_class]
         @overrides   = options[:overrides]
+        @factory_class = options[:factory_class]
       end
 
       def run
@@ -190,11 +203,15 @@ module FactoryGirl
       end
 
       def add_static_attribute(attr, val, ignored = false)
-        proxy.set(Attribute::Static.new(attr, val, ignored))
+        evaluator.set(Attribute::Static.new(attr, val, ignored))
       end
 
       def handle_attribute_without_overrides(attribute)
-        proxy.set(attribute)
+        evaluator.set(attribute)
+      end
+
+      def evaluator
+        @evaluator ||= AnonymousEvaluator.new
       end
 
       def proxy

@@ -12,7 +12,7 @@ module FactoryGirl
     end
 
     def evaluator
-      @evaluator ||= Class.new do
+      @evaluator ||= Module.new do
         def initialize
           @cached_attributes = {}
         end

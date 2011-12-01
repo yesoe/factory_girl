@@ -112,7 +112,8 @@ module FactoryGirl
       end
 
       def anonymous_instance
-        @anonymous_instance ||= @evaluator.evaluator.new
+        evaluator_module = @evaluator.evaluator
+        @anonymous_instance ||= Class.new { include evaluator_module }.new
       end
 
       private

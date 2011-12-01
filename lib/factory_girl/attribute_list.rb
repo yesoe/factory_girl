@@ -5,6 +5,15 @@ module FactoryGirl
     def initialize(name = nil)
       @name       = name
       @attributes = []
+      @evaluator = AnonymousEvaluator.new
+    end
+
+    def to_module
+      @attributes.each do |attribute|
+        @evaluator.set(attribute)
+      end
+
+      @evaluator.evaluator
     end
 
     def define_attribute(attribute)

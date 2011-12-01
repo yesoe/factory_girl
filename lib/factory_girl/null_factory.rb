@@ -11,5 +11,7 @@ module FactoryGirl
     def compile; end
     def default_strategy; end
     def class_name; end
+
+    def factory_class; Object; end
   end
 end
