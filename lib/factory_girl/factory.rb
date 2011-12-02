@@ -203,11 +203,11 @@ module FactoryGirl
       end
 
       def add_static_attribute(attr, val, ignored = false)
-        evaluator.set(Attribute::Static.new(attr, val, ignored))
+        proxy.set(Attribute::Static.new(attr, val, ignored))
       end
 
       def handle_attribute_without_overrides(attribute)
-        evaluator.set(attribute)
+        proxy.set(attribute)
       end
 
       def evaluator
