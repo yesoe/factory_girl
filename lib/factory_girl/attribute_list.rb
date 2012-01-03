@@ -2,6 +2,7 @@ module FactoryGirl
   class AttributeList
     include Enumerable
 
+    attr_reader :name
     def initialize(name = nil)
       @name       = name
       @attributes = []

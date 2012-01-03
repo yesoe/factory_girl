@@ -39,8 +39,8 @@ module FactoryGirl
 
       proxy = proxy_class.new
 
-      evaluator = evaluator_class_definer.evaluator_class.new(proxy, overrides.symbolize_keys, callbacks)
-      attribute_assigner = AttributeAssigner.new(build_class, evaluator, attributes)
+      evaluator = evaluator_class.new(proxy, overrides.symbolize_keys)
+      attribute_assigner = AttributeAssigner.new(build_class, evaluator)
 
       proxy.result(attribute_assigner, to_create).tap(&block)
     end
@@ -100,6 +100,10 @@ module FactoryGirl
       @class_name || parent.class_name || name
     end
 
+    def evaluator_class
+      @evaluator_class ||= EvaluatorClassDefiner.new(attributes, callbacks, parent.evaluator_class).evaluator_class
+    end
+
     def attributes
       compile
       AttributeList.new(@name).tap do |list|
@@ -116,7 +120,7 @@ module FactoryGirl
     private
 
     def processing_order
-      [parent, traits.reverse, @definition].flatten
+      [traits.reverse, @definition].flatten
     end
 
     def assert_valid_options(options)
@@ -140,10 +144,6 @@ module FactoryGirl
     def initialize_copy(source)
       super
       @definition = @definition.clone
-    end
-
-    def evaluator_class_definer
-      @evaluator_class_definer ||= EvaluatorClassDefiner.new(attributes)
     end
   end
 end
